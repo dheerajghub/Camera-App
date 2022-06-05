@@ -30,10 +30,12 @@ class MainViewController: UIViewController {
         return stackView
     }()
     
-    let sliderConfigView: CustomSliderView = {
+    lazy var sliderConfigView: CustomSliderView = {
         let view = CustomSliderView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.isHidden = true
+        view.delegate = self
+        view.viewModel = self.viewModel
         return view
     }()
     
@@ -68,31 +70,35 @@ class MainViewController: UIViewController {
     
     func setUpConstraints(){
         backgroundImage.pin(to: view)
+        sliderConfigView.pin(to: view)
         NSLayoutConstraint.activate([
             optionStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             optionStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             optionStackView.widthAnchor.constraint(equalToConstant: AppConstants.camera_option_Width),
-            
-            sliderConfigView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            sliderConfigView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            sliderConfigView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            sliderConfigView.heightAnchor.constraint(equalToConstant: windowConstant.getBottomPadding + 300.0)
         ])
     }
     
 }
 
-extension MainViewController: CameraViewModelActionDelegate {
+extension MainViewController: CameraViewModelActionDelegate, CustomSliderActionDelegate {
     
-    func didCameraOptionTapped(with tag: Int) {
+    func didCameraOptionTapped(with tag: Int, updateEvent: Bool) {
         let view = optionStackView.subviews
         for view in view {
             if let view = view as? CameraOptionView {
                 if view.tag == tag {
-                    view.tapInteraction()
-                    viewModel.optionTapped(with: tag, view: view, sliderView: sliderConfigView)
+                    if !updateEvent { view.tapInteraction() }
+                    viewModel.optionTapped(with: tag, view: view, sliderView: sliderConfigView, updateEvent: updateEvent)
                 }
             }
+        }
+    }
+    
+    func didConfirmValueChangeTapped(with data: SliderData) {
+        if data.type == .speed {
+            didCameraOptionTapped(with: 3, updateEvent: true)
+        } else {
+            didCameraOptionTapped(with: 2, updateEvent: true)
         }
     }
     

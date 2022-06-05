@@ -16,4 +16,5 @@ struct SliderData {
     let type: SliderType
     let names: [String]
     let values: [Float]
+    var selectedIndex: Int
 }

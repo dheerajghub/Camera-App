@@ -8,9 +8,16 @@
 import UIKit
 import AudioToolbox
 
+protocol CustomSliderActionDelegate {
+    func didConfirmValueChangeTapped(with data: SliderData)
+}
+
 class CustomSliderView: UIView {
 
     // MARK: PROPERTIES -
+    
+    var delegate: CustomSliderActionDelegate?
+    var viewModel: CameraViewModel?
     
     var currentPage = 0
     var oldPage = 0
@@ -20,14 +27,29 @@ class CustomSliderView: UIView {
     
     var sliderData: SliderData? {
         didSet {
-            guard let _ = sliderData else {
+            guard let sliderData = sliderData else {
                 return
             }
             collectionView.reloadData()
-            collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .centeredHorizontally, animated: false)
+            
+            let selectedIndex = sliderData.selectedIndex
+            let value = sliderData.values[selectedIndex]
+            if sliderData.type == .speed {
+                valuePreviewView.setTitle("Speed \(value)x", for: .normal)
+            } else {
+                valuePreviewView.setTitle("Timer \(Int(value))s", for: .normal)
+            }
+        
+            collectionView.scrollToItem(at: IndexPath(item: selectedIndex, section: 0), at: .centeredHorizontally, animated: false)
             
         }
     }
+    
+    let backGradientView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     let sliderView: UIView = {
         let view = UIView()
@@ -110,11 +132,16 @@ class CustomSliderView: UIView {
             let sliderWidth = slider_value_width / 2
             collectionView.contentInset = UIEdgeInsets(top: 0, left: (width - sliderWidth), bottom: 0, right: (width - sliderWidth))
             valuePreviewBlurrView.addBlurrView()
+            backGradientView.setGradient(withColors: [UIColor.black.withAlphaComponent(0.8).cgColor , UIColor.clear.withAlphaComponent(0).cgColor], startPoint: CGPoint(x: 0, y: 1), endPoint: CGPoint(x: 0, y: 0))
             
             self.valuePreviewView.center.y += 20
+            self.valuePreviewView.alpha = 0
             self.valuePreviewBlurrView.center.y += 20
+            self.valuePreviewBlurrView.alpha = 0
             self.sliderView.center.y += 20
+            self.sliderView.alpha = 0
             self.confirmButton.center.y += 20
+            self.confirmButton.alpha = 0
         })
         
     }
@@ -126,7 +153,7 @@ class CustomSliderView: UIView {
     // MARK: FUNCTIONS -
     
     func setUpViews(){
-        backgroundColor = .black.withAlphaComponent(0.8)
+        addSubview(backGradientView)
         addSubview(valuePreviewBlurrView)
         addSubview(valuePreviewView)
         addSubview(sliderView)
@@ -136,6 +163,7 @@ class CustomSliderView: UIView {
     }
     
     func setUpConstraints(){
+        backGradientView.pin(to: self)
         NSLayoutConstraint.activate([
             valuePreviewBlurrView.topAnchor.constraint(equalTo: valuePreviewView.topAnchor),
             valuePreviewBlurrView.leadingAnchor.constraint(equalTo: valuePreviewView.leadingAnchor),
@@ -143,28 +171,28 @@ class CustomSliderView: UIView {
             valuePreviewBlurrView.heightAnchor.constraint(equalToConstant: 35),
             
             valuePreviewView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            valuePreviewView.topAnchor.constraint(equalTo: topAnchor, constant: 20),
+            valuePreviewView.bottomAnchor.constraint(equalTo: sliderView.topAnchor, constant: -25),
             valuePreviewView.heightAnchor.constraint(equalToConstant: 35),
             
             sliderView.leadingAnchor.constraint(equalTo: leadingAnchor),
             sliderView.trailingAnchor.constraint(equalTo: trailingAnchor),
             sliderView.heightAnchor.constraint(equalToConstant: 70),
-            sliderView.topAnchor.constraint(equalTo: valuePreviewView.bottomAnchor, constant: 25),
+            sliderView.bottomAnchor.constraint(equalTo: confirmButton.topAnchor, constant: -50),
             
-            collectionView.heightAnchor.constraint(equalToConstant: 50),
-            collectionView.centerYAnchor.constraint(equalTo: sliderView.centerYAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: sliderView.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: sliderView.trailingAnchor),
-            
-            sliderPointer.widthAnchor.constraint(equalToConstant: 4),
-            sliderPointer.topAnchor.constraint(equalTo: sliderView.topAnchor),
-            sliderPointer.bottomAnchor.constraint(equalTo: sliderView.bottomAnchor),
-            sliderPointer.centerXAnchor.constraint(equalTo: sliderView.centerXAnchor),
+                collectionView.heightAnchor.constraint(equalToConstant: 50),
+                collectionView.centerYAnchor.constraint(equalTo: sliderView.centerYAnchor),
+                collectionView.leadingAnchor.constraint(equalTo: sliderView.leadingAnchor),
+                collectionView.trailingAnchor.constraint(equalTo: sliderView.trailingAnchor),
+                
+                sliderPointer.widthAnchor.constraint(equalToConstant: 4),
+                sliderPointer.topAnchor.constraint(equalTo: sliderView.topAnchor),
+                sliderPointer.bottomAnchor.constraint(equalTo: sliderView.bottomAnchor),
+                sliderPointer.centerXAnchor.constraint(equalTo: sliderView.centerXAnchor),
             
             confirmButton.centerXAnchor.constraint(equalTo: centerXAnchor),
             confirmButton.widthAnchor.constraint(equalToConstant: 90),
             confirmButton.heightAnchor.constraint(equalToConstant: 50),
-            confirmButton.topAnchor.constraint(equalTo: sliderView.bottomAnchor, constant: 40)
+            confirmButton.bottomAnchor.constraint(equalTo: self.safeAreaLayoutGuide.bottomAnchor, constant: -30)
         ])
     }
     
@@ -183,8 +211,10 @@ class CustomSliderView: UIView {
         }
         let value = sliderData.values[safe: page] ?? 0
         if sliderData.type == .speed {
+            viewModel?.speedData.selectedIndex = page
             valuePreviewView.setTitle("Speed \(value)x", for: .normal)
         } else {
+            viewModel?.timerData.selectedIndex = page
             valuePreviewView.setTitle("Timer \(Int(value))s", for: .normal)
         }
         
@@ -209,21 +239,42 @@ class CustomSliderView: UIView {
     
     func openAnimation(){
         self.isHidden = false
-        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 1, options: .curveEaseInOut) {
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.alpha = 1
             self.valuePreviewView.center.y -= 20
             self.valuePreviewBlurrView.center.y -= 20
+            self.valuePreviewView.alpha = 1
+            self.valuePreviewBlurrView.alpha = 1
+        }
+        
+        UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.sliderView.center.y -= 20
+            self.sliderView.alpha = 1
+        }
+        
+        UIView.animate(withDuration: 0.5, delay: 0.15, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.confirmButton.center.y -= 20
+            self.confirmButton.alpha = 1
         }
     }
     
     func hideAnimation(){
-        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.2, initialSpringVelocity: 1, options: .curveEaseInOut) {
+        
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.valuePreviewView.center.y += 20
             self.valuePreviewBlurrView.center.y += 20
+            self.valuePreviewView.alpha = 0
+            self.valuePreviewBlurrView.alpha = 0
+        }
+        
+        UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.sliderView.center.y += 20
+            self.sliderView.alpha = 0
+        }
+        
+        UIView.animate(withDuration: 0.5, delay: 0.15, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.confirmButton.center.y += 20
+            self.confirmButton.alpha = 0
             self.alpha = 0
         } completion: { finished in
             self.isHidden = true
@@ -235,6 +286,10 @@ class CustomSliderView: UIView {
     
     @objc func confirmButtonTapped(){
         hideAnimation()
+        guard let sliderData = sliderData else {
+            return
+        }
+        delegate?.didConfirmValueChangeTapped(with: sliderData)
     }
     
 }
@@ -325,7 +380,7 @@ class SliderCollectionViewCell: UICollectionViewCell {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .white
-        view.layer.cornerRadius = 4
+        view.layer.cornerRadius = 3
         view.isHidden = true
         return view
     }()
@@ -352,8 +407,8 @@ class SliderCollectionViewCell: UICollectionViewCell {
     func setUpConstraints(){
         cellLabel.pin(to: self)
         NSLayoutConstraint.activate([
-            dotView.widthAnchor.constraint(equalToConstant: 8),
-            dotView.heightAnchor.constraint(equalToConstant: 8),
+            dotView.widthAnchor.constraint(equalToConstant: 6),
+            dotView.heightAnchor.constraint(equalToConstant: 6),
             dotView.centerXAnchor.constraint(equalTo: centerXAnchor),
             dotView.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
