@@ -10,6 +10,7 @@ import AudioToolbox
 
 protocol CustomSliderActionDelegate {
     func didConfirmValueChangeTapped(with data: SliderData)
+    func dismissSlider()
 }
 
 class CustomSliderView: UIView {
@@ -45,9 +46,14 @@ class CustomSliderView: UIView {
         }
     }
     
-    let backGradientView: UIView = {
+    lazy var backGradientView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissPicker))
+        view.isUserInteractionEnabled = true
+        view.addGestureRecognizer(tapGesture)
+        
         return view
     }()
     
@@ -247,19 +253,18 @@ class CustomSliderView: UIView {
             self.valuePreviewBlurrView.alpha = 1
         }
         
-        UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
+        UIView.animate(withDuration: 0.5, delay: 0.05, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.sliderView.center.y -= 20
             self.sliderView.alpha = 1
         }
         
-        UIView.animate(withDuration: 0.5, delay: 0.15, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
+        UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.confirmButton.center.y -= 20
             self.confirmButton.alpha = 1
         }
     }
     
     func hideAnimation(){
-        
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.valuePreviewView.center.y += 20
             self.valuePreviewBlurrView.center.y += 20
@@ -267,19 +272,17 @@ class CustomSliderView: UIView {
             self.valuePreviewBlurrView.alpha = 0
         }
         
-        UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
+        UIView.animate(withDuration: 0.5, delay: 0.05, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.sliderView.center.y += 20
             self.sliderView.alpha = 0
         }
         
-        UIView.animate(withDuration: 0.5, delay: 0.15, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
+        UIView.animate(withDuration: 0.5, delay: 0.1, usingSpringWithDamping: 0.7, initialSpringVelocity: 0, options: .curveEaseInOut) {
             self.confirmButton.center.y += 20
             self.confirmButton.alpha = 0
             self.alpha = 0
-        } completion: { finished in
-            self.isHidden = true
         }
-
+        self.delegate?.dismissSlider()
     }
     
     // MARK: - ACTIONS
@@ -290,6 +293,10 @@ class CustomSliderView: UIView {
             return
         }
         delegate?.didConfirmValueChangeTapped(with: sliderData)
+    }
+    
+    @objc func dismissPicker(){
+        hideAnimation()
     }
     
 }

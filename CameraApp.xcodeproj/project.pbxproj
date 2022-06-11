@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		444289AB2850E11000C988A6 /* CameraButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 444289AA2850E11000C988A6 /* CameraButtonView.swift */; };
+		444289AF2850E18700C988A6 /* CountdownTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 444289AE2850E18700C988A6 /* CountdownTimerView.swift */; };
 		44666717284B138F000335BE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44666716284B138F000335BE /* AppDelegate.swift */; };
 		44666719284B138F000335BE /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44666718284B138F000335BE /* SceneDelegate.swift */; };
 		44666720284B1391000335BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4466671F284B1391000335BE /* Assets.xcassets */; };
@@ -25,6 +27,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		444289AA2850E11000C988A6 /* CameraButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraButtonView.swift; sourceTree = "<group>"; };
+		444289AE2850E18700C988A6 /* CountdownTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownTimerView.swift; sourceTree = "<group>"; };
 		44666713284B138F000335BE /* CameraApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		44666716284B138F000335BE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		44666718284B138F000335BE /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -141,6 +145,8 @@
 			children = (
 				44EB3AA3284B1D72002F7468 /* CameraOptionView.swift */,
 				44EB3ABB284B8534002F7468 /* CustomSliderView.swift */,
+				444289AA2850E11000C988A6 /* CameraButtonView.swift */,
+				444289AE2850E18700C988A6 /* CountdownTimerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -281,6 +287,7 @@
 				44EB3AB4284B3C96002F7468 /* UIView+Extension.swift in Sources */,
 				44666717284B138F000335BE /* AppDelegate.swift in Sources */,
 				44EB3ABA284B7214002F7468 /* CameraViewModel.swift in Sources */,
+				444289AB2850E11000C988A6 /* CameraButtonView.swift in Sources */,
 				44EB3AB6284B3C9D002F7468 /* UIColor+Extension.swift in Sources */,
 				44EB3AA4284B1D72002F7468 /* CameraOptionView.swift in Sources */,
 				44EB3AAA284B2668002F7468 /* AppConstant.swift in Sources */,
@@ -289,6 +296,7 @@
 				44EB3AB5284B3C9D002F7468 /* UIFont+Extension.swift in Sources */,
 				44666719284B138F000335BE /* SceneDelegate.swift in Sources */,
 				44845403284C660200D1DA91 /* Foundation.swift in Sources */,
+				444289AF2850E18700C988A6 /* CountdownTimerView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
