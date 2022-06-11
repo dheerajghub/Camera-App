@@ -67,11 +67,11 @@ class CountDownTimerView: UIView {
 //            self.counterLabel.textColor = .green.withAlphaComponent(0.8)
 //        }
         self.counterLabel.text = "\(counterFor)"
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .curveEaseIn) {
+        UIView.animate(withDuration: 0.9, delay: 0, usingSpringWithDamping: 0.5, initialSpringVelocity: 1, options: .curveEaseIn) {
             self.counterLabel.transform = .init(scaleX: 2, y: 2)
             self.counterLabel.alpha = 1
         } completion: { finished in
-            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseOut) { [weak self] in
+            UIView.animate(withDuration: 0.1, delay: 0, options: .curveEaseOut) { [weak self] in
                 self?.counterLabel.transform = .identity
                 self?.counterLabel.alpha = 0
                 if self?.counterFor == 1 {
