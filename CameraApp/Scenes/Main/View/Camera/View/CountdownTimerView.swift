@@ -7,8 +7,6 @@
 
 import UIKit
 
-import UIKit
-
 class CountDownTimerView: UIView {
 
     // MARK: - PROPERTIES

@@ -1,5 +1,5 @@
 //
-//  MainViewController.swift
+//  CameraViewController.swift
 //  CameraApp
 //
 //  Created by Dheeraj Kumar Sharma on 04/06/22.
@@ -7,18 +7,17 @@
 
 import UIKit
 
-class MainViewController: UIViewController {
+class CameraViewController: UIViewController {
 
     // MARK: PROPERTIES -
     
     var viewModel = CameraViewModel()
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
-    let backgroundImage: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.image = UIImage(named: "demo2")
-        imageView.contentMode = .scaleAspectFill
-        return imageView
+    let cameraPreviewView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     let optionStackView: UIStackView = {
@@ -54,6 +53,13 @@ class MainViewController: UIViewController {
         return view
     }()
     
+    lazy var permissionView: CustomPermissionView = {
+        let view = CustomPermissionView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.delegate = self
+        return view
+    }()
+    
     // MARK: MAIN -
     
     override func viewDidLoad() {
@@ -62,6 +68,7 @@ class MainViewController: UIViewController {
         setUpConstraints()
         
         viewModel.delegate = self
+        viewModel.appDelegate = appDelegate
         
         for i in 0..<viewModel.cameraOptions.count {
             let optionView = viewModel.createCameraOptions(with: viewModel.cameraOptions[i], with: i)
@@ -72,23 +79,29 @@ class MainViewController: UIViewController {
             ])
         }
         
+        checkPermissions()
+        viewModel.lastZoomFactor = 1.0
+        guard self.appDelegate.camera != nil else { return }
+        self.appDelegate.camera.cameraDevice.changeCurrentZoomFactor(1.0)
     }
     
     // MARK: FUNCTIONS -
     
     func setUpViews(){
         view.backgroundColor = .black
-        view.addSubview(backgroundImage)
+        view.addSubview(cameraPreviewView)
         view.addSubview(optionStackView)
         view.addSubview(cameraButtonView)
         view.addSubview(sliderConfigView)
         view.addSubview(countDownTimerView)
+        view.addSubview(permissionView)
     }
     
     func setUpConstraints(){
-        backgroundImage.pin(to: view)
+        cameraPreviewView.pin(to: view)
         sliderConfigView.pin(to: view)
         countDownTimerView.pin(to: view)
+        permissionView.pin(to: view)
         NSLayoutConstraint.activate([
             optionStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             optionStackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -104,12 +117,16 @@ class MainViewController: UIViewController {
     func setUIOnCameraButtonTap(with state: CameraButtonState){
         cameraButtonView.animateButtonWithState(with: state)
         if state == .inactive {
+            print("Start Recording")
+            startRecordingVideo()
             UIView.animate(withDuration: 0.2) { [weak self] in
                 self?.optionStackView.alpha = 0
             } completion: { finished in
                 self.optionStackView.isHidden = true
             }
         } else {
+            print("Stop Recording")
+            finishAndProcessTheVideo()
             self.optionStackView.isHidden = false
             UIView.animate(withDuration: 0.2) { [weak self] in
                 self?.optionStackView.alpha = 1
@@ -134,68 +151,6 @@ class MainViewController: UIViewController {
                 self?.cameraButtonView.alpha = 1
             }
         }
-    }
-    
-}
-
-extension MainViewController: CameraViewModelActionDelegate, CustomSliderActionDelegate, CameraButtonViewActionDelegate {
-    
-    func didCameraButtonTapped(with state: CameraButtonState) {
-        if viewModel.counterFor == 0 {
-            setUIOnCameraButtonTap(with: state)
-        } else {
-            setUpViews(to: .hidden)
-            countDownTimerView.counterFor = viewModel.counterFor
-            countDownTimerView.startTimer()
-            countDownTimerView.isHidden = false
-            UIView.animate(withDuration: 0.2) { [weak self] in
-                self?.countDownTimerView.alpha = 1
-            }
-            countDownTimerView.callback = { [weak self] in
-                self?.setUpViews(to: .shown)
-                self?.viewModel.counterFor = 0
-                self?.viewModel.timerData.selectedIndex = 0
-                self?.didCameraOptionTapped(with: 2, updateEvent: true)
-                self?.setUIOnCameraButtonTap(with: state)
-                UIView.animate(withDuration: 0.2) { [weak self] in
-                    self?.countDownTimerView.alpha = 0
-                } completion: { finished in
-                    self?.countDownTimerView.isHidden = true
-                }
-            }
-        }
-        
-    }
-    
-    func didCameraOptionTapped(with tag: Int, updateEvent: Bool) {
-        let view = optionStackView.subviews
-        for view in view {
-            if let view = view as? CameraOptionView {
-                if view.tag == tag {
-                    if !updateEvent { view.tapInteraction() }
-                    viewModel.optionTapped(with: tag, view: view, sliderView: sliderConfigView, updateEvent: updateEvent)
-                    /// Hiding all other view when timer or speed is being configured
-                    if !updateEvent {
-                        if tag == 2 || tag == 3 {
-                            setUpViews(to: .hidden)
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    func didConfirmValueChangeTapped(with data: SliderData) {
-        setUpViews(to: .shown)
-        if data.type == .speed {
-            didCameraOptionTapped(with: 3, updateEvent: true)
-        } else {
-            didCameraOptionTapped(with: 2, updateEvent: true)
-        }
-    }
-    
-    func dismissSlider() {
-        setUpViews(to: .shown)
     }
     
 }

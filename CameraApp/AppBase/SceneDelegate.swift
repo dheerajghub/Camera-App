@@ -15,7 +15,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.windowScene = windowScene
-        let VC = MainViewController()
+        let VC = CameraViewController()
         window?.rootViewController = VC
         window?.makeKeyAndVisible()
     }
@@ -40,12 +40,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
         // Use this method to undo the changes made on entering the background.
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        guard appDelegate.camera != nil else { return }
+        appDelegate.camera.startSession()
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
         // Called as the scene transitions from the foreground to the background.
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        guard appDelegate.camera != nil else { return }
+        appDelegate.camera.stopSession()
     }
 
 

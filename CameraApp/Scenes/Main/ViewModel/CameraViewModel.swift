@@ -6,9 +6,12 @@
 //
 
 import UIKit
+import AVFoundation
 
 protocol CameraViewModelActionDelegate {
     func didCameraOptionTapped(with tag: Int, updateEvent: Bool)
+    func didFlipCameraTapped()
+    func toggleFlashAndTorch(for state: FlashState)
 }
 
 enum CameraViewsState {
@@ -25,10 +28,14 @@ enum FlashState {
 class CameraViewModel: NSObject {
     
     var delegate: CameraViewModelActionDelegate?
-    var isFlashOn = false
     var isFrontCamera = true
     var counterFor = 0
     var cameraFlashState: FlashState = .off
+    var lastZoomFactor = 1.0
+    var currentSpeedScale = 1.0
+    var processVideoAsset: AVAsset?
+    
+    var appDelegate: AppDelegate?
     
     let cameraOptions = [
         CameraOption(optionName: "flash", optionImage: "ic_flash_off"),
@@ -38,7 +45,7 @@ class CameraViewModel: NSObject {
     ]
     
     var timerData = SliderData(type: .timer, names: ["0s","3s","5s","6s","8s","10s"], values: [0,3,5,6,8,10], selectedIndex: 0)
-    var speedData = SliderData(type: .speed, names: ["0x","•","1x","•","2x","•","3x"], values: [0,0.5,1,1.5,2,2.5,3], selectedIndex: 0)
+    var speedData = SliderData(type: .speed, names: ["0.3x","0.5x","1.0x","2.0x","3.0x"], values: [0.3,0.5,1.0,2.0,3.0], selectedIndex: 2)
     
     func createCameraOptions(with data: CameraOption, with tag: Int) -> UIView {
         let view = CameraOptionView()
@@ -61,19 +68,23 @@ class CameraViewModel: NSObject {
                 view.optionBackView.backgroundColor = .yellow
                 view.optionImageView.tintColor = .black
                 cameraFlashState = .auto
+                delegate?.toggleFlashAndTorch(for: .auto)
             case .off:
                 view.optionImageView.image = UIImage(named: "ic_flash_on")?.withRenderingMode(.alwaysTemplate)
                 view.optionBackView.backgroundColor = .white
                 view.optionImageView.tintColor = .black
                 cameraFlashState = .on
+                delegate?.toggleFlashAndTorch(for: .on)
             case .auto:
                 view.optionImageView.image = UIImage(named: "ic_flash_off")?.withRenderingMode(.alwaysTemplate)
                 view.optionBackView.backgroundColor = .clear
                 view.optionImageView.tintColor = .white
                 cameraFlashState = .off
+                delegate?.toggleFlashAndTorch(for: .off)
             }
             break
         case .flip:
+            delegate?.didFlipCameraTapped()
             break
         case .timer:
             let value = timerData.values[timerData.selectedIndex]
@@ -94,6 +105,7 @@ class CameraViewModel: NSObject {
             break
         case .speed:
             let value = speedData.values[speedData.selectedIndex]
+            currentSpeedScale = Double(value)
             if updateEvent {
                 if value != 0 {
                     view.optionDetailView.isHidden = false

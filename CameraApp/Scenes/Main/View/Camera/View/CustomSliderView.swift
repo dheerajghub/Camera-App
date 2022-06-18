@@ -23,7 +23,7 @@ class CustomSliderView: UIView {
     var currentPage = 0
     var oldPage = 0
     var newPage = 0
-    var slider_value_width = 30.0
+    var slider_value_width = 40.0
     var minimumInterItemSpacing = 10.0
     
     var sliderData: SliderData? {
