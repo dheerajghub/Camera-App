@@ -226,6 +226,7 @@
 		449D6D2D2854C3F900917EA7 /* MetalCamera */ = {
 			isa = PBXGroup;
 			children = (
+				449D6D4C28559C1B00917EA7 /* MetalView */,
 				449D6D4D28559C2500917EA7 /* MetalVideoWritter */,
 				449D6D2E2855957E00917EA7 /* MetalCamera.swift */,
 				449D6D302855962C00917EA7 /* MetaCameraDevice.swift */,
@@ -235,7 +236,6 @@
 				449D6D382855989D00917EA7 /* MetalImageConsumer.swift */,
 				449D6D3A285598C400917EA7 /* MetalImageSource.swift */,
 				449D6D3C28559A3700917EA7 /* MetalBaseFilter.swift */,
-				449D6D4C28559C1B00917EA7 /* MetalView */,
 				449D6D4028559ACC00917EA7 /* MetalDevice.swift */,
 				449D6D4228559B1200917EA7 /* MetalPassThroughFilter.swift */,
 				449D6D4428559B6300917EA7 /* MetalStaticImageSource.swift */,

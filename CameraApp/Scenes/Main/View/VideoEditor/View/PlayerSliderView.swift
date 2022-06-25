@@ -17,15 +17,6 @@ class PlayerSliderView: UIView {
     
     var delegate: PlayerSliderActionDelegate?
     
-    let startCountLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "00:00"
-        label.textColor = .white
-        label.font = .systemFont(ofSize: 13, weight: .semibold)
-        return label
-    }()
-    
     lazy var playerSlider: UISlider = {
         let slider = UISlider()
         slider.translatesAutoresizingMaskIntoConstraints = false
@@ -36,7 +27,7 @@ class PlayerSliderView: UIView {
         return slider
     }()
     
-    let endCountLabel: UILabel = {
+    let playerTimerLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "00:29"
@@ -60,23 +51,18 @@ class PlayerSliderView: UIView {
     // MARK: FUNCTIONS -
     
     func setUpViews(){
-        addSubview(startCountLabel)
         addSubview(playerSlider)
-        addSubview(endCountLabel)
+        addSubview(playerTimerLabel)
     }
     
     func setUpConstraints(){
         NSLayoutConstraint.activate([
-            startCountLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
-            startCountLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            startCountLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 100),
+            playerTimerLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
+            playerTimerLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            playerTimerLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 100),
             
-            endCountLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -15),
-            endCountLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            endCountLabel.widthAnchor.constraint(lessThanOrEqualToConstant: 100),
-            
-            playerSlider.leadingAnchor.constraint(equalTo: startCountLabel.trailingAnchor, constant: 10),
-            playerSlider.trailingAnchor.constraint(equalTo: endCountLabel.leadingAnchor, constant: -10),
+            playerSlider.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 15),
+            playerSlider.trailingAnchor.constraint(equalTo: playerTimerLabel.leadingAnchor, constant: -10),
             playerSlider.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }

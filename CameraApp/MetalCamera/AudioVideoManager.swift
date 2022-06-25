@@ -365,8 +365,60 @@ class AudioVideoManager: NSObject {
         startExport(videoAsset, videoComposition, exportUrl, preset: (preset ?? AVAssetExportPresetHighestQuality), progress: progress, completion: completion)
     }
     
+    func getURLFromAsset(asset: AVAsset?, progress: @escaping() -> (), completionHandler: @escaping(URL?) -> ()) {
+        
+        guard let asset = asset else {
+            completionHandler(nil)
+            return
+        }
+        
+        if let url = MetalCameraFileManager.temporaryPath("\(arc4random()).mp4") {
+            if let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality) {
+                session.outputURL = url
+                session.outputFileType = AVFileType.mov
+                progress()
+                session.exportAsynchronously {
+                    completionHandler(url)
+                }
+            }
+        }
+    }
+    
+    func removeAudioFromVideo(_ videoURL: URL , completionHandler: @escaping(URL?) -> ()) {
+        let inputVideoURL: URL = videoURL
+        let sourceAsset = AVURLAsset(url: inputVideoURL)
+        let sourceVideoTrack: AVAssetTrack? = sourceAsset.tracks(withMediaType: AVMediaType.video)[0]
+            let composition : AVMutableComposition = AVMutableComposition()
+        let compositionVideoTrack: AVMutableCompositionTrack? = composition.addMutableTrack(withMediaType: AVMediaType.video, preferredTrackID: kCMPersistentTrackID_Invalid)
+        let x: CMTimeRange = CMTimeRangeMake(start: CMTime.zero, duration: sourceAsset.duration)
+        _ = try? compositionVideoTrack!.insertTimeRange(x, of: sourceVideoTrack!, at: CMTime.zero)
+        guard let mutableVideoURL = MetalCameraFileManager.temporaryPath("test.mp4") else { return }
+        let exporter: AVAssetExportSession = AVAssetExportSession(asset: composition, presetName: AVAssetExportPresetHighestQuality)!
+        exporter.outputFileType = AVFileType.mp4
+        exporter.outputURL = mutableVideoURL
+        exporter.exportAsynchronously(completionHandler:
+            {
+                switch exporter.status
+                {
+                case AVAssetExportSession.Status.failed:
+                    print("failed \(String(describing: exporter.error))")
+                case AVAssetExportSession.Status.cancelled:
+                    print("cancelled \(String(describing: exporter.error))")
+                case AVAssetExportSession.Status.unknown:
+                    print("unknown\(String(describing: exporter.error))")
+                case AVAssetExportSession.Status.waiting:
+                    print("waiting\(String(describing: exporter.error))")
+                case AVAssetExportSession.Status.exporting:
+                    print("exporting\(String(describing: exporter.error))")
+                default:
+                    completionHandler(mutableVideoURL)
+                }
+            })
+    }
+    
     deinit { print("TYAudioVideoManager deinit.") }
 }
+
 
 // MARK:- Private methods
 extension AudioVideoManager {
@@ -465,19 +517,6 @@ extension AudioVideoManager {
                 progress(exportProgress)
             }
         })
-        
-        //        let exportQueue = DispatchQueue(label: "VideoExportProgressQueue")
-        //        exportQueue.async(execute: {
-        //            while exporter != nil {
-        //                let exportProgress: Float = exporter?.progress ?? 0.0
-        //                DispatchQueue.main.async {
-        //                    progress(exportProgress)
-        //                }
-        //                if exportProgress == 1.0 {
-        //                    break
-        //                }
-        //            }
-        //        })
         
         // Do export
         exporter?.exportAsynchronously(completionHandler: {

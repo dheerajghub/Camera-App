@@ -172,6 +172,7 @@ extension CameraViewController {
                 VC.modalPresentationStyle = .fullScreen
                 VC.modalTransitionStyle = .crossDissolve
                 self.present(VC, animated: true)
+                
             }
         }
     }

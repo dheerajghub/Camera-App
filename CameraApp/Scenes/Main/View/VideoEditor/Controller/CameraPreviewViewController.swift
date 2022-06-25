@@ -14,13 +14,25 @@ enum PlayerState {
     case replay
 }
 
+
 class CameraPreviewViewController: UIViewController {
 
     // MARK: PROPERTIES -
     
     var videoAsset: AVAsset?
+    var assetUrl: URL?
     var player: AVPlayer?
     var playerState: PlayerState? = .play
+    
+    var isMute: Bool = false {
+        didSet {
+            if isMute {
+                soundButton.setImage(UIImage(named: "ic_mute")?.withRenderingMode(.alwaysTemplate), for: .normal)
+            } else {
+                soundButton.setImage(UIImage(named: "ic_unmute")?.withRenderingMode(.alwaysTemplate), for: .normal)
+            }
+        }
+    }
     
     lazy var playerView: UIView = {
         let view = UIView()
@@ -31,6 +43,17 @@ class CameraPreviewViewController: UIViewController {
         view.addGestureRecognizer(tapGesture)
         
         return view
+    }()
+    
+    lazy var soundButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "ic_unmute")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .black.withAlphaComponent(0.8)
+        button.layer.cornerRadius = 20
+        button.addTarget(self, action: #selector(soundButtonTapped), for: .touchUpInside)
+        return button
     }()
     
     lazy var playButton: UIButton = {
@@ -61,6 +84,17 @@ class CameraPreviewViewController: UIViewController {
         return button
     }()
     
+    lazy var saveVideoButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "ic_down")?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .black.withAlphaComponent(0.8)
+        button.layer.cornerRadius = 20
+        button.addTarget(self, action: #selector(saveVideo), for: .touchUpInside)
+        return button
+    }()
+    
     lazy var sliderView: PlayerSliderView = {
         let view = PlayerSliderView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -74,6 +108,7 @@ class CameraPreviewViewController: UIViewController {
         super.viewDidLoad()
         setUpViews()
         setUpConstraints()
+        prepareVideoForExport()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.setUpVideoPlayer()
@@ -101,8 +136,10 @@ class CameraPreviewViewController: UIViewController {
         view.backgroundColor = .black
         view.addSubview(playerView)
         view.addSubview(closeButton)
+        view.addSubview(saveVideoButton)
         view.addSubview(sliderView)
         view.addSubview(playButton)
+        view.addSubview(soundButton)
     }
     
     func setUpConstraints(){
@@ -112,6 +149,16 @@ class CameraPreviewViewController: UIViewController {
             closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
             closeButton.widthAnchor.constraint(equalToConstant: 40),
             closeButton.heightAnchor.constraint(equalToConstant: 40),
+            
+            saveVideoButton.trailingAnchor.constraint(equalTo: closeButton.leadingAnchor, constant: -10),
+            saveVideoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
+            saveVideoButton.widthAnchor.constraint(equalToConstant: 40),
+            saveVideoButton.heightAnchor.constraint(equalToConstant: 40),
+            
+            soundButton.trailingAnchor.constraint(equalTo: saveVideoButton.leadingAnchor, constant: -10),
+            soundButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 15),
+            soundButton.widthAnchor.constraint(equalToConstant: 40),
+            soundButton.heightAnchor.constraint(equalToConstant: 40),
             
             sliderView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -40),
             sliderView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -142,7 +189,7 @@ class CameraPreviewViewController: UIViewController {
             let secondText = String(format: "%02d", Int(seconds) % 60)
             let minuteText = String(format: "%02d", Int(seconds) / 60)
             
-            sliderView.endCountLabel.text = "\(minuteText):\(secondText)"
+            sliderView.playerTimerLabel.text = "\(minuteText):\(secondText)"
         }
         
         // Tracking slider base on video progress
@@ -153,13 +200,33 @@ class CameraPreviewViewController: UIViewController {
             let secondString = String(format: "%02d", Int(seconds.truncatingRemainder(dividingBy: 60)))
             let minuteString = String(format: "%02d", Int(seconds / 60))
             
-            self.sliderView.startCountLabel.text = "\(minuteString):\(secondString)"
+            self.sliderView.playerTimerLabel.text = "\(minuteString):\(secondString)"
             
             if let duration = self.player?.currentItem?.duration {
                 let durationSeconds = CMTimeGetSeconds(duration)
                 self.sliderView.playerSlider.value = Float(seconds / durationSeconds)
             }
         })
+    }
+    
+    func prepareVideoForExport(){
+        /// Saving the processed video into temperoray path and return processed video URL
+        
+        AudioVideoManager.shared.getURLFromAsset(asset: videoAsset) {
+            
+            self.saveVideoButton.alpha = 0.1
+            self.saveVideoButton.isEnabled = false
+            
+        } completionHandler: { url in
+            guard let url = url else { return }
+            
+            DispatchQueue.main.async {
+                self.saveVideoButton.alpha = 1
+                self.saveVideoButton.isEnabled = true
+                self.assetUrl = url
+            }
+        }
+        
     }
     
     // MARK: - ACTIONS
@@ -189,6 +256,51 @@ class CameraPreviewViewController: UIViewController {
             playButton.isHidden = true
             playerState = .play
         }
+    }
+    
+    @objc func saveVideo(){
+        guard let assetUrl = assetUrl else {
+            return
+        }
+        
+        /// If video setted to mute remove audio from video and then save it!
+        if isMute {
+            AudioVideoManager.shared.removeAudioFromVideo(assetUrl) { url in
+                guard let url = url else {
+                    return
+                }
+                
+                MetalCameraFileManager.saveVideo(url) { success, error in
+                    if success {
+                        DispatchQueue.main.async {
+                            self.saveVideoButton.alpha = 0.2
+                            self.saveVideoButton.isEnabled = false
+                        }
+                    }
+                }
+            }
+            
+        } else {
+            MetalCameraFileManager.saveVideo(assetUrl) { success, error in
+                if success {
+                    DispatchQueue.main.async {
+                        self.saveVideoButton.alpha = 0.2
+                        self.saveVideoButton.isEnabled = false
+                    }
+                }
+            }
+        }
+    }
+    
+    @objc func soundButtonTapped() {
+        if isMute {
+            player?.isMuted = false
+        } else {
+            player?.isMuted = true
+        }
+        
+        isMute = !isMute
+        
     }
 
 }
