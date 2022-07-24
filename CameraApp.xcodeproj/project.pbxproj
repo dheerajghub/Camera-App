@@ -39,6 +39,12 @@
 		449D6D552855A29500917EA7 /* CustomPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D6D542855A29500917EA7 /* CustomPermissionView.swift */; };
 		449D6D572856184900917EA7 /* AudioVideoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D6D562856184800917EA7 /* AudioVideoManager.swift */; };
 		449D6D5928561ABD00917EA7 /* MetalCameraFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449D6D5828561ABD00917EA7 /* MetalCameraFileManager.swift */; };
+		44E48D8428673C95008C95F9 /* CameraTypeToggleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E48D8328673C95008C95F9 /* CameraTypeToggleView.swift */; };
+		44E48D8728674AD0008C95F9 /* CameraTypeCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E48D8628674AD0008C95F9 /* CameraTypeCollectionViewCell.swift */; };
+		44E48D8A28686569008C95F9 /* ReelCameraButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E48D8928686569008C95F9 /* ReelCameraButtonView.swift */; };
+		44E48D8C28701144008C95F9 /* CustomVideoTimerBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E48D8B28701144008C95F9 /* CustomVideoTimerBarView.swift */; };
+		44E48D9128719E5B008C95F9 /* ShortsPreviewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44E48D9028719E5B008C95F9 /* ShortsPreviewController.swift */; };
+		44E48D942871AFC7008C95F9 /* Blank.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 44E48D932871AFC7008C95F9 /* Blank.mp3 */; };
 		44EB3A9E284B1AE0002F7468 /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44EB3A9D284B1AE0002F7468 /* CameraViewController.swift */; };
 		44EB3AA4284B1D72002F7468 /* CameraOptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44EB3AA3284B1D72002F7468 /* CameraOptionView.swift */; };
 		44EB3AA7284B2112002F7468 /* CameraOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44EB3AA6284B2112002F7468 /* CameraOptions.swift */; };
@@ -85,6 +91,12 @@
 		449D6D542855A29500917EA7 /* CustomPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPermissionView.swift; sourceTree = "<group>"; };
 		449D6D562856184800917EA7 /* AudioVideoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioVideoManager.swift; sourceTree = "<group>"; };
 		449D6D5828561ABD00917EA7 /* MetalCameraFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetalCameraFileManager.swift; sourceTree = "<group>"; };
+		44E48D8328673C95008C95F9 /* CameraTypeToggleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraTypeToggleView.swift; sourceTree = "<group>"; };
+		44E48D8628674AD0008C95F9 /* CameraTypeCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraTypeCollectionViewCell.swift; sourceTree = "<group>"; };
+		44E48D8928686569008C95F9 /* ReelCameraButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReelCameraButtonView.swift; sourceTree = "<group>"; };
+		44E48D8B28701144008C95F9 /* CustomVideoTimerBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomVideoTimerBarView.swift; sourceTree = "<group>"; };
+		44E48D9028719E5B008C95F9 /* ShortsPreviewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortsPreviewController.swift; sourceTree = "<group>"; };
+		44E48D932871AFC7008C95F9 /* Blank.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Blank.mp3; sourceTree = "<group>"; };
 		44EB3A9D284B1AE0002F7468 /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		44EB3AA3284B1D72002F7468 /* CameraOptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOptionView.swift; sourceTree = "<group>"; };
 		44EB3AA6284B2112002F7468 /* CameraOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraOptions.swift; sourceTree = "<group>"; };
@@ -201,6 +213,7 @@
 		4466672E284B14A8000335BE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				44E48D922871AFB1008C95F9 /* Audio */,
 				4466671F284B1391000335BE /* Assets.xcassets */,
 			);
 			path = Resources;
@@ -265,6 +278,56 @@
 			path = MetalVideoWritter;
 			sourceTree = "<group>";
 		};
+		44E48D8528674A9C008C95F9 /* CameraTypeToggleView */ = {
+			isa = PBXGroup;
+			children = (
+				44E48D8328673C95008C95F9 /* CameraTypeToggleView.swift */,
+				44E48D8628674AD0008C95F9 /* CameraTypeCollectionViewCell.swift */,
+			);
+			path = CameraTypeToggleView;
+			sourceTree = "<group>";
+		};
+		44E48D882868653E008C95F9 /* CameraButtons */ = {
+			isa = PBXGroup;
+			children = (
+				444289AA2850E11000C988A6 /* CameraButtonView.swift */,
+				44E48D8928686569008C95F9 /* ReelCameraButtonView.swift */,
+			);
+			path = CameraButtons;
+			sourceTree = "<group>";
+		};
+		44E48D8D28719A44008C95F9 /* ShortsEditor */ = {
+			isa = PBXGroup;
+			children = (
+				44E48D8E28719A94008C95F9 /* Controller */,
+				44E48D8F28719A9A008C95F9 /* View */,
+			);
+			path = ShortsEditor;
+			sourceTree = "<group>";
+		};
+		44E48D8E28719A94008C95F9 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				44E48D9028719E5B008C95F9 /* ShortsPreviewController.swift */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		44E48D8F28719A9A008C95F9 /* View */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		44E48D922871AFB1008C95F9 /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				44E48D932871AFC7008C95F9 /* Blank.mp3 */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
 		44EB3A9A284B180A002F7468 /* Main */ = {
 			isa = PBXGroup;
 			children = (
@@ -278,11 +341,13 @@
 		44EB3A9B284B1819002F7468 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				44E48D882868653E008C95F9 /* CameraButtons */,
+				44E48D8528674A9C008C95F9 /* CameraTypeToggleView */,
 				44EB3AA3284B1D72002F7468 /* CameraOptionView.swift */,
 				44EB3ABB284B8534002F7468 /* CustomSliderView.swift */,
-				444289AA2850E11000C988A6 /* CameraButtonView.swift */,
 				444289AE2850E18700C988A6 /* CountdownTimerView.swift */,
 				449D6D542855A29500917EA7 /* CustomPermissionView.swift */,
+				44E48D8B28701144008C95F9 /* CustomVideoTimerBarView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -328,6 +393,7 @@
 			children = (
 				445DC983285DE628002C9930 /* Camera */,
 				445DC984285DE637002C9930 /* VideoEditor */,
+				44E48D8D28719A44008C95F9 /* ShortsEditor */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -399,6 +465,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				44666723284B1391000335BE /* LaunchScreen.storyboard in Resources */,
+				44E48D942871AFC7008C95F9 /* Blank.mp3 in Resources */,
 				44666720284B1391000335BE /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -419,6 +486,9 @@
 				44EB3A9E284B1AE0002F7468 /* CameraViewController.swift in Sources */,
 				449D6D4F28559C3C00917EA7 /* MetalVideoWritter.swift in Sources */,
 				449D6D4328559B1200917EA7 /* MetalPassThroughFilter.swift in Sources */,
+				44E48D9128719E5B008C95F9 /* ShortsPreviewController.swift in Sources */,
+				44E48D8C28701144008C95F9 /* CustomVideoTimerBarView.swift in Sources */,
+				44E48D8428673C95008C95F9 /* CameraTypeToggleView.swift in Sources */,
 				449D6D3F28559A8F00917EA7 /* MetalView.swift in Sources */,
 				44EB3AB4284B3C96002F7468 /* UIView+Extension.swift in Sources */,
 				44666717284B138F000335BE /* AppDelegate.swift in Sources */,
@@ -428,9 +498,11 @@
 				449D6D572856184900917EA7 /* AudioVideoManager.swift in Sources */,
 				449D6D5128559C4900917EA7 /* MetalVideoWritter.metal in Sources */,
 				4418DF3C285D9C66005B84C3 /* CameraPreviewViewController.swift in Sources */,
+				44E48D8728674AD0008C95F9 /* CameraTypeCollectionViewCell.swift in Sources */,
 				44EB3AB6284B3C9D002F7468 /* UIColor+Extension.swift in Sources */,
 				44EB3AA4284B1D72002F7468 /* CameraOptionView.swift in Sources */,
 				449D6D33285596F200917EA7 /* MetalCameraDeviceInput.swift in Sources */,
+				44E48D8A28686569008C95F9 /* ReelCameraButtonView.swift in Sources */,
 				44EB3AAA284B2668002F7468 /* AppConstant.swift in Sources */,
 				449D6D5928561ABD00917EA7 /* MetalCameraFileManager.swift in Sources */,
 				44EB3ABC284B8534002F7468 /* CustomSliderView.swift in Sources */,
@@ -597,7 +669,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -630,7 +702,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

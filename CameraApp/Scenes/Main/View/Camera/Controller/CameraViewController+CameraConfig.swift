@@ -162,16 +162,31 @@ extension CameraViewController {
                 let speed = self.viewModel.currentSpeedScale
                 
                 /// Generating a video asset with changin a speed video as per  selection
-                let asset = AudioVideoManager.shared.changeVideoSpeed(videoUrl: self.appDelegate.videoWriter.url, videoSpeed: speed,audioSpeed: speed)
-                
-                /// Assigning processed asset to viewModel's variable
-                self.viewModel.processVideoAsset = asset
-                
-                let VC = CameraPreviewViewController()
-                VC.videoAsset = asset
-                VC.modalPresentationStyle = .fullScreen
-                VC.modalTransitionStyle = .crossDissolve
-                self.present(VC, animated: true)
+                AudioVideoManager.shared.changeVideoSpeed(videoUrl: self.appDelegate.videoWriter.url, videoSpeed: speed,audioSpeed: speed) { asset in
+                    
+                    if self.viewModel.cameraType == .video {
+                        
+                        /// Assigning processed asset to viewModel's variable
+                        self.viewModel.videoAsset = asset
+                        
+                        let VC = CameraPreviewViewController()
+                        VC.videoAsset = asset
+                        VC.modalPresentationStyle = .fullScreen
+                        VC.modalTransitionStyle = .crossDissolve
+                        self.present(VC, animated: true)
+                        
+                    } else {
+                        guard let asset = asset else {
+                            return
+                        }
+                        
+                        self.viewModel.videoAssetsChunk.append(asset)
+                        self.viewModel.videoSpeedArr.append(Double(self.viewModel.currentSpeedScale))
+                        
+                        self.reelCameraButtonView.nextButton.isHidden = false
+                    }
+                    
+                }
                 
             }
         }

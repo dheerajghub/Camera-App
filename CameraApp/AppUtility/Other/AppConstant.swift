@@ -11,8 +11,8 @@ import UIKit
 struct AppConstants {
     
     /// Camera Options width  and height
-    static let camera_option_Width = 55.0
-    static let camera_option_Height = 77.0
+    static let camera_option_Width = 55.0 - 5.0
+    static let camera_option_Height = 77.0 - 5.0
     
 }
 

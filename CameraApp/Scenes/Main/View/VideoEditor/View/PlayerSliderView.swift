@@ -30,7 +30,7 @@ class PlayerSliderView: UIView {
     let playerTimerLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "00:29"
+        label.text = "00:00"
         label.textColor = .white
         label.font = .systemFont(ofSize: 13, weight: .semibold)
         return label

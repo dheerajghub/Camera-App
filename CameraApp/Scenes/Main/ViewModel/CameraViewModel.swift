@@ -14,6 +14,11 @@ protocol CameraViewModelActionDelegate {
     func toggleFlashAndTorch(for state: FlashState)
 }
 
+enum CameraTypeState {
+    case video
+    case reel
+}
+
 enum CameraViewsState {
     case hidden
     case shown
@@ -33,11 +38,14 @@ class CameraViewModel: NSObject {
     var cameraFlashState: FlashState = .off
     var lastZoomFactor = 1.0
     var currentSpeedScale = 1.0
-    var processVideoAsset: AVAsset?
+    var videoAsset: AVAsset?
+    var videoAssetsChunk: [AVAsset] = []
+    var videoSpeedArr: [Double] = []
+    var cameraType: CameraTypeState = .video
     
     var appDelegate: AppDelegate?
     
-    let cameraOptions = [
+    var cameraOptions = [
         CameraOption(optionName: "flash", optionImage: "ic_flash_off"),
         CameraOption(optionName: "flip", optionImage: "ic_flip"),
         CameraOption(optionName: "timer", optionImage: "ic_timer"),
@@ -46,6 +54,9 @@ class CameraViewModel: NSObject {
     
     var timerData = SliderData(type: .timer, names: ["0s","3s","5s","6s","8s","10s"], values: [0,3,5,6,8,10], selectedIndex: 0)
     var speedData = SliderData(type: .speed, names: ["0.3x","0.5x","1.0x","2.0x","3.0x"], values: [0.3,0.5,1.0,2.0,3.0], selectedIndex: 2)
+    var durationData = SliderData(type: .duration, names: ["15s", "30s" , "60s"], values: [15.0 , 30.0 , 60.0], selectedIndex: 0)
+    
+    lazy var recordingDuration: Double = Double(durationData.values[durationData.selectedIndex])
     
     func createCameraOptions(with data: CameraOption, with tag: Int) -> UIView {
         let view = CameraOptionView()
@@ -120,7 +131,36 @@ class CameraViewModel: NSObject {
             }
             sliderView.sliderData = speedData
             break
+        case .duration:
+            let value = durationData.values[durationData.selectedIndex]
+            recordingDuration = Double(value)
+            if updateEvent {
+                if value != 0 {
+                    view.optionDetailView.isHidden = false
+                    view.optionDetailView.backgroundColor = UIColor.red
+                    view.optionDetailView.setTitle("\(Int(value))s", for: .normal)
+                } else {
+                    view.optionDetailView.isHidden = true
+                }
+            } else {
+                sliderView.valuePreviewView.setTitle("Duration 15s", for: .normal)
+                sliderView.openAnimation()
+            }
+            sliderView.sliderData = durationData
+            break
         }
+    }
+    
+    func resetAllDefaults(){
+        durationData.selectedIndex = 0
+        recordingDuration = Double(durationData.values[durationData.selectedIndex])
+        counterFor = 0
+        currentSpeedScale = 1.0
+        speedData.selectedIndex = 2
+        timerData.selectedIndex = 0
+        videoSpeedArr.removeAll()
+        videoAssetsChunk.removeAll()
+        FileManager.default.clearTmpDirectory()
     }
     
     // MARK: - ACTIONS

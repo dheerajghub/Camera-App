@@ -7,6 +7,7 @@
 
 import UIKit
 import AVFoundation
+import UniformTypeIdentifiers
 
 class AudioVideoManager: NSObject {
     
@@ -48,7 +49,10 @@ class AudioVideoManager: NSObject {
         }
         
         // Silence sound (in case of video has no sound track)
-        let blankAudioUrl = Bundle.main.url(forResource: "blank", withExtension: "wav")!
+        guard let blankAudioUrl = Bundle.main.url(forResource: "Blank", withExtension: "mp3") else {
+            completion(nil, nil)
+            return
+        }
         let blankAudio = AVAsset(url: blankAudioUrl)
         let blankAudioTrack = blankAudio.tracks(withMediaType: .audio).first
         
@@ -157,7 +161,7 @@ class AudioVideoManager: NSObject {
         startExport(mixComposition, nil, exportUrl, progress: progress, completion: completion)
     }
     
-    func changeVideoSpeed(videoUrl: URL,videoSpeed:Double,audioSpeed:Double)->AVAsset? {
+    func changeVideoSpeed(videoUrl: URL,videoSpeed:Double,audioSpeed:Double, _ completionhandler: @escaping(AVAsset?) -> ()) {
         let videoAsset = AVAsset(url: videoUrl)
         
         // Init composition
@@ -166,7 +170,8 @@ class AudioVideoManager: NSObject {
         // Get video track
         guard let videoTrack = videoAsset.tracks(withMediaType: .video).first else {
             print("[Error]: Video not found.")
-            return nil
+            completionhandler(nil)
+            return
         }
         
         // Get audio track
@@ -203,9 +208,9 @@ class AudioVideoManager: NSObject {
                 audioCompositionTrack?.scaleTimeRange(CMTimeRangeMake(start: .zero, duration: videoAsset.duration), toDuration: scaledAudioDuration)
             }
             
-            return mixComposition
+            completionhandler(mixComposition)
         } catch {
-            return nil
+            completionhandler(nil)
         }
     }
     
@@ -365,7 +370,7 @@ class AudioVideoManager: NSObject {
         startExport(videoAsset, videoComposition, exportUrl, preset: (preset ?? AVAssetExportPresetHighestQuality), progress: progress, completion: completion)
     }
     
-    func getURLFromAsset(asset: AVAsset?, progress: @escaping() -> (), completionHandler: @escaping(URL?) -> ()) {
+    func getURLFromAsset(asset: AVAsset?, _ progress: @escaping() -> (), completionHandler: @escaping(URL?) -> ()) {
         
         guard let asset = asset else {
             completionHandler(nil)
@@ -415,6 +420,57 @@ class AudioVideoManager: NSObject {
                 }
             })
     }
+    
+    func cropVideo(sourceURL: URL, length: Float, completionHandler: @escaping(URL?) -> ())
+     {
+         let manager = FileManager.default
+
+         guard let documentDirectory = try? manager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {return}
+         let mediaType = "mp4"
+         if mediaType == "mp4" as String {
+             let asset = AVAsset(url: sourceURL as URL)
+             let len = Float(asset.duration.value) / Float(asset.duration.timescale)
+             print("video length: \(len) seconds")
+
+             let start = 0.0
+             let end = length
+
+             var outputURL = documentDirectory.appendingPathComponent("output")
+             do {
+                 try manager.createDirectory(at: outputURL, withIntermediateDirectories: true, attributes: nil)
+                 outputURL = outputURL.appendingPathComponent("\(UUID().uuidString).\(mediaType)")
+             }catch let error {
+                 print(error)
+             }
+
+             //Remove existing file
+             _ = try? manager.removeItem(at: outputURL)
+
+
+             guard let exportSession = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality) else {return}
+             exportSession.outputURL = outputURL
+             exportSession.outputFileType = .mp4
+
+             let startTime = CMTime(seconds: Double(start ), preferredTimescale: 1000)
+             let endTime = CMTime(seconds: Double(end ), preferredTimescale: 1000)
+             let timeRange = CMTimeRange(start: startTime, end: endTime)
+
+             exportSession.timeRange = timeRange
+             exportSession.exportAsynchronously{
+                 switch exportSession.status {
+                 case .completed:
+                     completionHandler(outputURL)
+                 case .failed:
+                     print("failed \(exportSession.error)")
+
+                 case .cancelled:
+                     print("cancelled \(exportSession.error)")
+
+                 default: break
+                 }
+             }
+         }
+     }
     
     deinit { print("TYAudioVideoManager deinit.") }
 }
@@ -544,6 +600,18 @@ extension FileManager {
             } catch {
                 print("Failed to delete file")
             }
+        }
+    }
+    
+    func clearTmpDirectory() {
+        do {
+            let tmpDirectory = try contentsOfDirectory(atPath: NSTemporaryDirectory())
+            try tmpDirectory.forEach {[unowned self] file in
+                let path = String.init(format: "%@%@", NSTemporaryDirectory(), file)
+                try self.removeItem(atPath: path)
+            }
+        } catch {
+            print(error)
         }
     }
 }

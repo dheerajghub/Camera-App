@@ -35,10 +35,16 @@ class CustomSliderView: UIView {
             
             let selectedIndex = sliderData.selectedIndex
             let value = sliderData.values[selectedIndex]
-            if sliderData.type == .speed {
+            switch sliderData.type {
+            case .speed:
                 valuePreviewView.setTitle("Speed \(value)x", for: .normal)
-            } else {
+                break
+            case .timer:
                 valuePreviewView.setTitle("Timer \(Int(value))s", for: .normal)
+                break
+            case .duration:
+                valuePreviewView.setTitle("Duration \(Int(value))s", for: .normal)
+                break
             }
         
             collectionView.scrollToItem(at: IndexPath(item: selectedIndex, section: 0), at: .centeredHorizontally, animated: false)
@@ -216,12 +222,20 @@ class CustomSliderView: UIView {
             return
         }
         let value = sliderData.values[safe: page] ?? 0
-        if sliderData.type == .speed {
+        
+        switch sliderData.type {
+        case .speed:
             viewModel?.speedData.selectedIndex = page
             valuePreviewView.setTitle("Speed \(value)x", for: .normal)
-        } else {
+            break
+        case .timer:
             viewModel?.timerData.selectedIndex = page
             valuePreviewView.setTitle("Timer \(Int(value))s", for: .normal)
+            break
+        case .duration:
+            viewModel?.durationData.selectedIndex = page
+            valuePreviewView.setTitle("Duration \(Int(value))s", for: .normal)
+            break
         }
         
     }

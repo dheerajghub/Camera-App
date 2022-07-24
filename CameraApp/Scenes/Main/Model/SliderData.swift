@@ -10,6 +10,7 @@ import Foundation
 enum SliderType {
     case speed
     case timer
+    case duration
 }
 
 struct SliderData {

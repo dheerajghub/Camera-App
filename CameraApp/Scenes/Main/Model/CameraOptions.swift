@@ -12,6 +12,7 @@ enum CameraOptions: Int {
     case flip
     case timer
     case speed
+    case duration
 }
 
 struct CameraOption {
